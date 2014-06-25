@@ -1,0 +1,207 @@
+<script>
+	var name, deals;
+	var Deck = function() {
+		this.cards = [];
+		this.count = function() {
+			return this.cards.length;
+		};
+		this.init = function() {
+			for (s = 1; s <=4; s++) {
+				for (r = 2; r<=14; r++) {
+					this.cards.push(new Card(r,s));
+						
+				}
+			}
+		};
+	};
+	
+	function Card(rank,suit) {
+		this.rank = rank;
+		this.suit = suit;	
+	};
+
+	
+	
+	function CardName(card) {
+		var rank, suit;
+
+  		switch (card.rank) {
+    		case 14 :
+      			rank = "Ace";
+      			break;
+	    	case 11 :
+	      		rank = "Jack"
+	      		break;
+	    	case 12 :
+	      		rank = "Queen"
+	      		break;
+	    	case 13 :
+	      		rank = "King"
+	      		break;
+	    	default :
+	      		rank = card.rank.toString();
+	      	break;
+  		}
+
+  		switch (card.suit) {
+		    case 1 :
+		      suit = "Clubs";
+		      break;
+		    case 2 :
+		      suit = "Diamonds"
+		      break;
+		    case 3 :
+		      suit = "Hearts"
+		      break;
+		    case 4 :
+		      suit = "Spades"
+		      break;
+		    default :
+		      suit = null;
+		      break;
+		}
+
+  		if (rank == null && suit == null)
+    		return "";
+
+  		return rank + " of " + suit;
+	}
+
+	
+	
+	function Player(name) {
+		this.name = name;
+		this.hand = [];
+		this.jackpot = [];
+		this.points = 0;
+		this.bank = 10;
+		this.show = function() {
+			for (i in this.hand) {
+				console.log(this.name + "'s hand: " + CardName(this.hand[i]));
+			}
+			console.log(this.name + "'s points: " + this.points);
+		};
+		this.jackpot_go = function() {
+			var random_prize = Math.floor(Math.random() * 2) + 2;
+			if (this.points == 21 && (this.hand[0].rank == 11 || this.hand[1].rank == 11)) {
+				alert("Congrats you won the Jackpot!!")
+				while (this.jackpot.length > 0) {
+					var bonus = this.jackpot.shift() 
+					p1.bank += bonus
+					alert ("Cha-Ching " + this.bank)
+				}
+			}
+			else if (p1.points == 21) {
+				alert("Awesome, you got BlackJack!!  Here's an extra dollar plus  " + random_prize + " have been added to your jackpot." )
+				this.bank ++
+				this.jackpot.push(random_prize)
+			}
+
+		};
+		this.play = function()	{
+			this.points = 0;
+			for (i in this.hand) {
+				if (this.hand[i].rank <= 10) {
+					this.points += this.hand[i].rank;
+				}
+				else if (this.hand[i].rank > 10 && this.hand[i].rank < 14) {
+					this.points += 10;
+				}
+				else {
+					if (this.points + 11 <= 21) {
+						this.points += 11;
+					}
+					else {
+						this.points ++;
+					} 		
+				}
+			}
+		};
+		this.hit = function(times) {
+			for (i = 0; i < times; i++) {
+				var rando = Math.floor(Math.random() * d.cards.length);
+				this.hand.push(d.cards[rando]);
+				d.cards.splice(rando,1);
+				this.hand.sort(function(obj1,obj2) {
+					return obj1.rank - obj2.rank;
+				});
+			}
+			this.play();
+			if (this.name == p1.name) {
+				this.show();
+			}
+		};
+	};
+	
+
+	name = prompt("Let's play some Blackjack, enter your name to get started");
+	name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+	alert("Okay " + name + " , if you hit Blackjack (21) in the first two cards you double your winnings.\
+	  Also a random cash prize between $2-4 will be added to your jackpot.  When you hit a Blackjack that includes any\
+	  of the Jacks you win the jackpot!")
+	p1 = new Player(name);
+	p2 = new Player("Computer");
+	d = new Deck();	
+	
+	while (p1.bank > 0) {
+		d.cards = [];
+		p2.hand = [];
+		p1.hand = [];
+		d.init()
+		
+		console.log("You have $" + p1.bank + " in your bank");
+		deals = prompt("Press enter to bet $1 and begin playing.  Or type 'stop' to stop playing");
+		if (deals == "stop") {
+			break;
+		}
+		else {
+			p1.bank --;	
+			p1.hit(2);
+			p2.hit(2);
+			p1.jackpot_go();
+			while(p1.points < 21) {
+				var draws = prompt("Press enter or click 'OK' to hit, otherwise type 'stay' to stay");
+				if (draws == "stay") {
+					break;
+				}
+				else if (p1.points == 21) {
+					break;
+				}
+				else {
+					p1.hit(1)
+					if (p1.points > 21 ) {
+					}
+				}
+			}
+		}
+
+		while (p2.points < 17) {
+			p2.hit(1);
+		}
+		p2.show();
+		
+		if (p1.points > 21) {
+			console.log("Looks like you bust, sorry you lose.");
+		}
+		else if (p1.points == p2.points) {
+			console.log("Push");
+			p1.bank ++;
+		}
+		else if (p1.points > p2.points || p2.points > 21) {
+			console.log("Congratulations you win!");
+			p1.bank += 2;
+		}
+		else {
+			console.log("Sorry you lose");
+		}
+		if (p1.bank == 0) {
+			console.log("It also looks like you've run out of cash.");
+		}
+	}
+
+
+
+
+
+
+</script>
